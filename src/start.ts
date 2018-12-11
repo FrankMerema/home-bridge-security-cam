@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-require('./server').start();
+// require('./server').start();
 
 // import { createWriteStream, readFileSync, writeFileSync } from 'fs';
 // import { Codec, StillCamera, StreamCamera } from 'pi-camera-connect';
@@ -137,3 +137,145 @@ require('./server').start();
 // };
 //
 // appWithStreams();
+
+import { Request, Response } from 'express';
+import { Codec, StreamCamera } from 'pi-camera-connect';
+
+const mjpegServerExpressWithCam = () => {
+    const express = require('express');
+    const bodyParser = require('body-parser');
+    const mjpegServer = require('mjpeg-server');
+    const app = express();
+
+    app.use(bodyParser.json());
+    app.use(bodyParser.urlencoded({extended: false}));
+
+    const streamCamera = new StreamCamera({
+        codec: Codec.H264
+    });
+
+    app.get('/stream', (req: any, res: any) => {
+        console.log('Got request');
+
+        const videoStream = streamCamera.createStream();
+
+        const mjpegReqHandler = mjpegServer.createReqHandler(req, res);
+
+        streamCamera.startCapture().then(_ => {
+            console.log('Stream started');
+        });
+
+        videoStream.on('data', (data: Buffer) => {
+            mjpegReqHandler.write(data, () => {
+            });
+        });
+
+        videoStream.on('end', () => {
+            mjpegReqHandler.close();
+        });
+
+        setTimeout(() => {
+            streamCamera.stopCapture().then(_ => {
+                console.log('Stream stopped');
+            });
+        }, 10000);
+    });
+
+    app.get('/status', (req: Request, res: Response) => {
+        res.json({status: 'OK'});
+    });
+
+    app.listen(8080, () => {
+        console.log(`Express app listening on port 8080!`);
+    });
+};
+
+const mjpegServerExpress = () => {
+    const express = require('express');
+    const bodyParser = require('body-parser');
+    const mjpegServer = require('mjpeg-server');
+    const fs = require('fs');
+    const app = express();
+
+    app.use(bodyParser.json());
+    app.use(bodyParser.urlencoded({extended: false}));
+
+    app.get('/stream', (req: any, res: any) => {
+        console.log('Got request');
+
+        const mjpegReqHandler = mjpegServer.createReqHandler(req, res);
+
+        let i = 0;
+
+        const updateJPG = () => {
+            fs.readFile(`./imgs/${i}.jpg`, sendJPGData);
+            i++;
+        };
+
+        const sendJPGData = (err: any, data: any): void => {
+            console.log(data);
+            mjpegReqHandler.write(data, () => {
+                checkIfFinished();
+            });
+        };
+
+        const timer = setInterval(updateJPG, 1000);
+
+        const checkIfFinished = () => {
+            if (i > 20) {
+                clearInterval(timer);
+                mjpegReqHandler.close();
+                console.log('End Request');
+            }
+        };
+    });
+
+    app.get('/status', (req: Request, res: Response) => {
+        res.json({status: 'OK'});
+    });
+
+    app.listen(1234, () => {
+        console.log(`Express app listening on port 1234!`);
+    });
+};
+
+const mjpegServer = () => {
+    const http = require('http');
+    const fs = require('fs');
+    const mjpegServer = require('mjpeg-server');
+
+    http.createServer((req: any, res: any) => {
+        console.log('Got request');
+
+        const mjpegReqHandler = mjpegServer.createReqHandler(req, res);
+
+        let i = 0;
+
+        const updateJPG = () => {
+            fs.readFile(`./imgs/${i}.jpg`, sendJPGData);
+            i++;
+        };
+
+        const sendJPGData = (err: any, data: any): void => {
+            mjpegReqHandler.write(data, () => {
+                checkIfFinished();
+            });
+        };
+
+        const timer = setInterval(updateJPG, 1000);
+
+        const checkIfFinished = () => {
+            if (i > 20) {
+                clearInterval(timer);
+                mjpegReqHandler.close();
+                console.log('End Request');
+            }
+        };
+    }).listen(12345, () => {
+        console.log('Server started on 12345');
+    });
+};
+
+// mjpegServer();
+// mjpegServerExpress();
+mjpegServerExpressWithCam();
