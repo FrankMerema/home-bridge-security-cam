@@ -151,7 +151,7 @@ const mjpegServerExpressWithCam = () => {
     app.use(bodyParser.urlencoded({extended: false}));
 
     const streamCamera = new StreamCamera({
-        codec: Codec.H264
+        codec: Codec.MJPEG
     });
 
     app.get('/stream', (req: any, res: any) => {
