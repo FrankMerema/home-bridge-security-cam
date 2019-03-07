@@ -1,6 +1,9 @@
 #!/usr/bin/env node
 
+import { Request, Response } from 'express';
+import { writeFile, writeFileSync } from 'fs';
 // require('./server').start();
+import { Codec, StillCamera, StreamCamera } from 'pi-camera-connect';
 
 // import { createWriteStream, readFileSync, writeFileSync } from 'fs';
 // import { Codec, StillCamera, StreamCamera } from 'pi-camera-connect';
@@ -9,42 +12,51 @@
 // import Timer = NodeJS.Timer;
 //
 // // Take still image and save to disk
-// const runCamera = async () => {
-//
-//     const stillCamera = new StillCamera();
-//
-//     const image = await stillCamera.takeImage();
-//
-//     writeFileSync('still-image.jpg', image);
-// };
-//
-// const runVideo = async () => {
-//
-//     const streamCamera = new StreamCamera({
-//         codec: Codec.MJPEG
-//     });
-//
-//     const videoStream = streamCamera.createStream();
-//
-//     const writeStream = createWriteStream('video-stream.mjpeg');
-//
-//     // Pipe the video stream to our video file
-//     videoStream.pipe(writeStream);
-//
-//     await streamCamera.startCapture();
-//
-//     // We can also listen to data events as they arrive
-//     videoStream.on('data', (data: Buffer) => console.log('New data', data.toString('base64')));
-//     videoStream.on('end', (data: Buffer) => console.log('Video stream has ended'));
-//
-//     // Wait for 5 seconds
-//     await new Promise(resolve => setTimeout(() => resolve(), 5000));
-//
-//     await streamCamera.stopCapture();
-// };
-//
-// // runCamera();
-// // runVideo();
+const runCamera = async () => {
+
+    const stillCamera = new StillCamera();
+
+    const image = await stillCamera.takeImage();
+
+    writeFileSync('still-image.jpg', image);
+
+};
+
+const runVideo = async () => {
+
+    const streamCamera = new StreamCamera({
+        codec: Codec.MJPEG
+    });
+
+    const videoStream = streamCamera.createStream();
+
+    // const writeStream = createWriteStream('video-stream.mjpeg');
+
+    // Pipe the video stream to our video file
+    // videoStream.pipe(writeStream);
+
+    await streamCamera.startCapture();
+
+    // const img = await streamCamera.takeImage();
+    //
+    // console.log(img);
+
+    // We can also listen to data events as they arrive
+    videoStream.once('data', (data: Buffer) => {
+        writeFile('still-image.jpg', data, () => {
+            streamCamera.stopCapture();
+        });
+    });
+    // videoStream.on('end', (data: Buffer) => console.log('Video stream has ended'));
+
+    // Wait for 5 seconds
+    // await new Promise(resolve => setTimeout(() => resolve(), 5000));
+    //
+    // await streamCamera.stopCapture();
+};
+
+// runCamera();
+// runVideo();
 //
 //
 // const appWithStreams = () => {
@@ -137,9 +149,7 @@
 // };
 //
 // appWithStreams();
-
-import { Request, Response } from 'express';
-import { Codec, StreamCamera } from 'pi-camera-connect';
+// import { Codec, StreamCamera } from 'pi-camera-connect';
 
 const mjpegServerExpressWithCam = () => {
     const express = require('express');
@@ -159,21 +169,56 @@ const mjpegServerExpressWithCam = () => {
 
         const videoStream = streamCamera.createStream();
 
-        const mjpegReqHandler = mjpegServer.createReqHandler(req, res);
+        // const mjpegReqHandler = mjpegServer.createReqHandler(req, res);
+
+        // streamCamera.startCapture().then(() => {
+        //     console.log('start');
+        //
+        //     streamCamera.takeImage().then((buf: Buffer) => {
+        //         console.log('image');
+        //
+        //         mjpegReqHandler.write(buf, () => {
+        //             console.log('send');
+        //             mjpegReqHandler.close();
+        //
+        //             streamCamera.stopCapture().then(() => {
+        //                 console.log('stopped');
+        //             });
+        //         });
+        //     }).catch(err => {
+        //         console.log(err);
+        //         streamCamera.stopCapture().then(() => {
+        //             console.log('stopped err');
+        //         });
+        //     });
+        // });
 
         streamCamera.startCapture().then(_ => {
             console.log('Stream started');
         });
+        //
 
-        videoStream.on('data', (data: Buffer) => {
-            mjpegReqHandler.write(data, () => {
-            });
-        });
+        // res.writeHead(200, {
+        //     'Content-Type': 'multipart/x-mixed-replace; boundary=myboundary',
+        //     'Cache-Control': 'no-cache',
+        //     'Connection': 'close',
+        //     'Pragma': 'no-cache'
+        // });
 
-        videoStream.on('end', () => {
-            mjpegReqHandler.close();
-        });
+        
 
+        videoStream.pipe(res);
+        // videoStream.on('data', (data: Buffer) => {
+        // console.log(data);
+        // mjpegReqHandler.write(data, () => {
+        // });
+        // });
+
+        // videoStream.on('end', () => {
+        // mjpegReqHandler.close();
+        // res.close();
+        // });
+        //
         setTimeout(() => {
             streamCamera.stopCapture().then(_ => {
                 console.log('Stream stopped');
