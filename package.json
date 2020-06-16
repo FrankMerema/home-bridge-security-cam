@@ -28,7 +28,7 @@
     "express-rate-limit": "3.3.2",
     "express-session": "1.15.6",
     "helmet": "3.15.0",
-    "pi-camera-connect": "0.2.0",
+    "pi-camera-connect": "0.3.0",
     "mjpeg-server": "0.3.0"
   }
 }
