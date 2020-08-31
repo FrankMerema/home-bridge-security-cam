@@ -569,10 +569,10 @@ path-to-regexp@0.1.7:
   resolved "https://registry.yarnpkg.com/path-to-regexp/-/path-to-regexp-0.1.7.tgz#df604178005f522f15eb4490e7247a1bfaa67f8c"
   integrity sha1-32BBeABfUi8V60SQ5yR6G/qmf4w=
 
-pi-camera-connect@0.3.0:
-  version "0.3.0"
-  resolved "https://registry.yarnpkg.com/pi-camera-connect/-/pi-camera-connect-0.3.0.tgz#1f699d2482dd54d0658c2908c51b111ca063db42"
-  integrity sha512-gOoiUlo0d7r4XvxI1YDMhyxZ2Bfs6hu1cN8/BxZNXLs4Tl5Fcz6oiRgCADXIe5qya2LdD8LUe1MbqCxLDzrkKQ==
+pi-camera-connect@0.3.3:
+  version "0.3.3"
+  resolved "https://registry.yarnpkg.com/pi-camera-connect/-/pi-camera-connect-0.3.3.tgz#293bf7ac14f099e413f16abb3186831cf84c106e"
+  integrity sha512-U4v3gjva6XFsRuA2yimGIcO1m+VuoVS11or2t4QTQljjpsF9whC+wGIZ2zlQzb1jNpM7tG7YAxOzZlb1IxMeAQ==
   dependencies:
     systeminformation "4"
 
