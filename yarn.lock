@@ -692,9 +692,9 @@ source-map@^0.6.0:
   integrity sha1-Fhx9rBd2Wf2YEfQ3cfqZOBR4Yow=
 
 systeminformation@4:
-  version "4.26.9"
-  resolved "https://registry.yarnpkg.com/systeminformation/-/systeminformation-4.26.9.tgz#ecc725a162c0c7d8d48226f97637a5f590042ffd"
-  integrity sha512-69MTIX9j//wnteJzQWuGL6FiMxlfS3wTWyhROI6pNUaQALYqJb3W9VtLVcEcKFOjO1vrGRgilJVFzJeRRi//Pg==
+  version "4.30.0"
+  resolved "https://registry.yarnpkg.com/systeminformation/-/systeminformation-4.30.0.tgz#2d707259c2f6bfd4f94fa06dc8ed962344079c9b"
+  integrity sha512-RugiFbF7WppC/F71Y1S0WXbywQQ2MQcne5SUX0r51JHdhjbyKO0ydK6gdprtKlzIcU6edaADULbB8j2nAe/1LQ==
 
 toidentifier@1.0.0:
   version "1.0.0"
